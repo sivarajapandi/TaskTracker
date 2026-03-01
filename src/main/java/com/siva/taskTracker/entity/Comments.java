@@ -2,12 +2,21 @@ package com.siva.taskTracker.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "comments")
 
+@Table(name = "comments")
+@AllArgsConstructor
+@NoArgsConstructor
+
+@Getter
+@Setter
+@Entity
 public class Comments {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,4 +34,7 @@ public class Comments {
     private User user;
 
     private LocalDateTime createdAt;
+
+    @Column(name = "commentedByUser")
+    private User commentedByUser;
 }

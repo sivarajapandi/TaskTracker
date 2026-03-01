@@ -1,26 +1,23 @@
 package com.siva.taskTracker.dto;
 
-
 import com.siva.taskTracker.entity.Status;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-
-public class CreateTaskDto {
-
-    @NotBlank
+@NoArgsConstructor
+@AllArgsConstructor
+public class TaskResponseDto {
+    private Long id;
     private String title;
     private String description;
-    private Long assignedToUserId;
-    @NotNull
+    private Status status;
+    private Long assignedUserId;
     private Long teamId;
+
+    // Getters and Setters
 
 }

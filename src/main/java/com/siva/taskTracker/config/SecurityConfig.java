@@ -1,14 +1,18 @@
 package com.siva.taskTracker.config;
 
 
+import com.siva.taskTracker.filter.JwtFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 //what is @Configuration annotation in Spring Boot?
@@ -16,6 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 // @Bean methods and may be processed by the Spring container to generate bean definitions and service requests for those beans at runtime. It is a part of the Spring Framework and is commonly used to define configuration classes that provide bean definitions and other configuration settings for the application context.
 
 public class SecurityConfig {
+
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -25,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/register", "/api/register", "/api/login", "/login", "/error", "/css/**", "/js/**","/signin").permitAll()
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(session -> session .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(form -> form
                         .loginPage("/login")  // Your custom login page
                         .loginProcessingUrl("/login")  // Where form posts (Spring Security handles this)
@@ -33,6 +41,7 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/dashboard", true)  // After successful login
                         .permitAll()
                 )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/logout")  // URL to trigger logout
                         .logoutSuccessUrl("/login?logout")  // Redirect after logout

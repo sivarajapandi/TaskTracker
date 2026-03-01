@@ -7,10 +7,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -18,11 +22,36 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private JWTUtility jwtUtility;
 
+private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
+        "/api/register",
+        "/api/login",
+        "/signin",
+        "/login",
+        "/register",
+        "/protected"
+);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String requestPath = request.getRequestURI();
+        System.out.println("Request Path: " + requestPath);
+
+        //skip validation for public endpoints
+        if(PUBLIC_ENDPOINTS.stream().anyMatch(requestPath::startsWith)){
+            filterChain.doFilter(request, response);
+            return;
+        }
         String jwtToken = request.getHeader("Authorization");
-        System.out.println("JWT Token:"+ jwtToken);
+        System.out.println("JWT Token after extraction is:"+ jwtToken);
+
+        // Check if the Authorization header is present and starts with "Bearer "
+        //removing the Bearer prefix from the token
+        if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
+            jwtToken = jwtToken.substring(7); // Remove "Bearer " prefix
+        }
+
+
 
         if(jwtToken == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -34,6 +63,17 @@ public class JwtFilter extends OncePerRequestFilter {
         Claims claims= jwtUtility.validateToken(jwtToken);
 
         System.out.println(claims);
+        String username = claims.getSubject();
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        List.of() // or authorities if you extract roles
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
 
         // If token is valid, continue with the filter chain
         filterChain.doFilter(request, response);

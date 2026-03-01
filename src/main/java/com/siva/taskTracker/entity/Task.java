@@ -45,9 +45,16 @@ public class Task {
     private User assignedTo;
 
     @OneToMany (mappedBy="task",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Comment> comments;
+    private List<Comments> comments;
 
     @OneToMany(mappedBy = "task",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Attachments> attachments;
+
+    @Column(name ="deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
 
 }

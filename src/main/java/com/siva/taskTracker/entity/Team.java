@@ -18,15 +18,23 @@ public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "name", nullable = false,length = 150)
     private String name;
-
+    @Column(name = "description")
     private String description;
 
 
     @OneToMany(mappedBy = "team")
     private List<TeamMember> teamMembers;
+
+    @Column(name = "created_by" ,nullable = false)
+    private Long createdBy;
+
+    @Column(name = "deleted_at", updatable = true)
+    private Long deletedAt;
 
 
     //as of now Team is not Having any task but in future if we want to assign task to team then we can use this relationship

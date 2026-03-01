@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,33 +25,47 @@ public class User  implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column(unique = true,nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(name ="role",length = 25)
     private Role role;
+
 
     @OneToMany(mappedBy = "CreatedBy")
     private List<Task> createdTasks;
+
 
     @OneToMany(mappedBy = "assignedTo")
     private List<Task> assignedTasks;
 
     @OneToMany(mappedBy="commentedByUser")
-    private List<Comment> comments;
+    private List<Comments> comments;
 
     @OneToMany(mappedBy="uploadedByUser")
-    private List<Attachment> attachments;
+    private List<Attachments> attachments;
 
     @OneToMany(mappedBy ="user")
-    Private List<TeamMember> teamMembers;
+    private List<TeamMember> teamMembers;
+
+
+    //how to default value for createdAt and updatedAt
+    //
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
 
 
@@ -82,6 +97,17 @@ public class User  implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @PrePersist
+    public void prePersist(){
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
 

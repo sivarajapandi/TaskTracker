@@ -1,9 +1,6 @@
 package com.siva.taskTracker.dto;
 
-
 import com.siva.taskTracker.entity.Status;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +11,14 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CreateTaskDto {
 
-    @NotBlank
+public class ResponseCreateTaskDTO {
+    private Long id;
     private String title;
     private String description;
-    private Long assignedToUserId;
-    @NotNull
+    private Status status;
+    private Long createdByUserId;
+    private Long assignedUserId;
     private Long teamId;
 
 }

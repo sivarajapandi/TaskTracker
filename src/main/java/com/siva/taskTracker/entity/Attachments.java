@@ -29,7 +29,7 @@ public class Attachments {
 
     @ManyToOne
     @JoinColumn(name = "uploaded_by")
-    private User uploadedBy;
+    private User uploadedByUser;
 
     private LocalDateTime createdAt;
 

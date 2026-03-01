@@ -32,6 +32,8 @@ public class TeamMember {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
+    @Column(name = "joined_at")
     private LocalDateTime joinedAt;
 
 }

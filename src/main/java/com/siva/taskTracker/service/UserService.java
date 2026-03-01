@@ -1,7 +1,9 @@
 package com.siva.taskTracker.service;
 
 import com.siva.taskTracker.dto.LoginRequestDto;
+import com.siva.taskTracker.dto.LoginResponseDTO;
 import com.siva.taskTracker.dto.RegisterRequest;
+import com.siva.taskTracker.dto.ResponseCreateTaskDTO;
 import com.siva.taskTracker.entity.Role;
 import com.siva.taskTracker.entity.User;
 import com.siva.taskTracker.repository.UserRepository;
@@ -34,7 +36,7 @@ public class UserService {
      * @param password Plain text password (will be hashed)
      * @throws RuntimeException if email already exists
      */
-    public void registerUser(RegisterRequest registerRequest) {
+    public LoginResponseDTO registerUser(RegisterRequest registerRequest) {
         // Check if email already exists
         String name = registerRequest.getName();
         String email = registerRequest.getEmail();
@@ -58,6 +60,14 @@ public class UserService {
 
         // Save to database
         userRepository.save(user);
+
+        // mapping the generated token and the username and the email to the response DTO
+        LoginResponseDTO responseDTO = new LoginResponseDTO();
+        responseDTO.setToken(jwtUtility.generateToken(user));
+        responseDTO.setEmail(user.getEmail());
+        responseDTO.setUsername(user.getName());
+
+        return responseDTO;
     }
 
     /**
@@ -98,7 +108,7 @@ public class UserService {
     }
 
 
-    public ResponseEntity<String> signInUser(LoginRequestDto loginRequestDto) {
+    public LoginResponseDTO signInUser(LoginRequestDto loginRequestDto) {
         //check whether user exists and password is correct
         if (loginUser(loginRequestDto)) {
             //generate JWT token and return to client
@@ -108,12 +118,20 @@ public class UserService {
 
             System.out.println("the generated token is: " + jwtUtility.generateToken(userDetails)); // Debugging line
 
-            return ResponseEntity.ok("Login successful. JWT token generated.");
+            //mapping the generated toaken and the username and the email to the response DTO
+            LoginResponseDTO responseDTO = new LoginResponseDTO();
+            responseDTO.setToken(jwtUtility.generateToken(userDetails));
+            responseDTO.setEmail(userDetails.getUsername());
+            responseDTO.setUsername(findByEmail(loginRequestDto.getEmail()).getName());
+
+            return responseDTO;
 
         } else {
             throw new RuntimeException("Invalid email or password");
         }
     }
+
+
 }
 
 

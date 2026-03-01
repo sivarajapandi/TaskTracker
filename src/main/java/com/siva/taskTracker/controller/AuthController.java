@@ -1,6 +1,7 @@
 package com.siva.taskTracker.controller;
 
 import com.siva.taskTracker.dto.LoginRequestDto;
+import com.siva.taskTracker.dto.LoginResponseDTO;
 import com.siva.taskTracker.dto.RegisterRequest;
 import com.siva.taskTracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,7 @@ public class AuthController {
 
         // Validate passwords match
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            return ResponseEntity.badRequest().body("Passwords don't match");
+            return ResponseEntity.badRequest().body(new LoginResponseDTO());
         }
 
         // Validate password length
@@ -92,8 +93,8 @@ public class AuthController {
 
         try {
             // Call service to register user
-            userService.registerUser(request);
-            return ResponseEntity.ok("User registered successfully");
+            LoginResponseDTO response=userService.registerUser(request);
+            return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
             // Handle errors (like duplicate email)
@@ -117,10 +118,11 @@ public class AuthController {
     @PostMapping("/api/login")
     public ResponseEntity<?> loginUserApi(@RequestBody LoginRequestDto loginRequestDto){
 
-        if(userService.loginUser(loginRequestDto)){
-            return ResponseEntity.ok("Login successful");
-        } else {
-            return ResponseEntity.badRequest().body("Invalid email or password");
+        try {
+            LoginResponseDTO responseDTO = userService.signInUser(loginRequestDto);
+            return ResponseEntity.ok(responseDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
     }
@@ -136,9 +138,10 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signInPost(@RequestBody LoginRequestDto loginRequestDto){
+    public ResponseEntity<LoginResponseDTO> signInPost(@RequestBody LoginRequestDto loginRequestDto){
         /// verify credentials and generate JWT token
-        return userService.signInUser(loginRequestDto);
+        LoginResponseDTO responseDTO = userService.signInUser(loginRequestDto);
+        return ResponseEntity.ok(responseDTO);
     }
 
     //endpoint to test if JWT token is valid and user is authenticated
@@ -147,6 +150,12 @@ public class AuthController {
         return ResponseEntity.ok("You have accessed a protected endpoint!");
     }
 
+    //endpoint for logout
+    @PostMapping("/logout")
+    public String logout() {
+        // Spring Security will handle the logout process and invalidate the session
+        return "redirect:/login?logout"; // Redirect to login page with logout message
+    }
 
 
 }
